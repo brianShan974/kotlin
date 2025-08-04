@@ -1,6 +1,18 @@
 package org.jetbrains.kotlin
 
+import com.intellij.mock.MockProject
+import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.components.KaDiagnosticCheckerFilter
+import org.jetbrains.kotlin.analysis.api.diagnostics.KaDiagnosticWithPsi
+import org.jetbrains.kotlin.analysis.api.projectStructure.contextModule
+import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
+import org.jetbrains.kotlin.analysis.low.level.api.fir.api.collectDiagnosticsForFile
+import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
+import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
+import org.jetbrains.kotlin.psi.KtPsiFactory
+import kotlin.io.path.Path
 
 const val src1 = """
 enum class ExecutionState {
@@ -283,14 +295,8 @@ fun main(args: Array<String>) {
     simpleAnalyze(src2.trimIndent())
 }
 
-@OptIn(KtAnalysisApiInternals::class)
 fun simpleAnalyze(fileContent: String) {
     val session = buildStandaloneAnalysisAPISession {
-        (project as MockProject).registerService(
-            KtLifetimeTokenProvider::class.java,
-            KtAlwaysAccessibleLifetimeTokenProvider::class.java
-        )
-
         buildKtModuleProvider {
             platform = JvmPlatforms.defaultJvmPlatform
             addModule(buildKtSourceModule {
@@ -303,34 +309,15 @@ fun simpleAnalyze(fileContent: String) {
 
     val psiFile = KtPsiFactory(session.project).createFile("temp.kt", fileContent)
 
+    @OptIn(KaExperimentalApi::class)
+    psiFile.contextModule = session.modulesWithFiles.keys.first()
+
     val diagnostics = analyze(psiFile) {
-        psiFile.collectDiagnosticsForFile(KtDiagnosticCheckerFilter.EXTENDED_AND_COMMON_CHECKERS).map {
-            it.toLspDiagnostic()
+        psiFile.collectDiagnostics(KaDiagnosticCheckerFilter.ONLY_COMMON_CHECKERS).map {
+            it.defaultMessage
         }
     }
 
     println(diagnostics)
 }
 
-fun PsiElement.toLspPosition(offset: Int): Position {
-    val text = containingFile.text
-    val lc = StringUtil.offsetToLineColumn(text, offset)
-    return Position(lc.line, lc.column)
-}
-
-fun PsiElement.toLspRange(textRange: TextRange): Range = Range(
-    toLspPosition(textRange.startOffset),
-    toLspPosition(textRange.endOffset)
-)
-
-fun Severity.toLspSeverity(): DiagnosticSeverity = when (this) {
-    Severity.INFO -> DiagnosticSeverity.Information
-    Severity.WARNING -> DiagnosticSeverity.Warning
-    Severity.ERROR -> DiagnosticSeverity.Error
-}
-
-fun KtDiagnosticWithPsi<*>.toLspDiagnostic(): Diagnostic = Diagnostic().also {
-    it.range = psi.toLspRange(textRanges.first())
-    it.message = defaultMessage
-    it.severity = severity.toLspSeverity()
-}

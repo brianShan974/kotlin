@@ -13,7 +13,10 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation(project(":analysis"))
+    implementation(project(":analysis:analysis-api"))
+    implementation(project(":analysis:analysis-api-standalone"))
+    implementation(project(":compiler:psi:psi-api"))
+    implementation(project(":compiler:cli-common"))
 
     testImplementation(kotlin("test"))
 }
