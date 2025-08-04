@@ -1039,3 +1039,6 @@ if (buildProperties.isKotlinNativeEnabled) {
     include ':native:native.tests:cli-tests'
     include ':kotlin-native:tools:minidump-analyzer'
 }
+
+include 'debug-analysis-api'
+project(":debug-analysis-api").projectDir = file("debug-analysis-api")
