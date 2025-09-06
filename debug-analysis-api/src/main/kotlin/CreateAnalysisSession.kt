@@ -29,9 +29,7 @@ import kotlin.io.path.Path
 const val KOTLIN_STDLIB_VERSION: String = "2.2.0"
 const val KOTLIN_STDLIB_JAR: String = "kotlin-stdlib-$KOTLIN_STDLIB_VERSION.jar"
 
-fun createSession(): StandaloneAnalysisAPISession {
-    val classLoader = Thread.currentThread().contextClassLoader
-    val stdlibPath = Path(classLoader.getResource("libs/$KOTLIN_STDLIB_JAR")!!.path)
+fun createFactory(): KtPsiFactory {
     val session = buildStandaloneAnalysisAPISession {
         println("creating session")
         buildKtModuleProvider {
@@ -42,22 +40,21 @@ fun createSession(): StandaloneAnalysisAPISession {
                 moduleName = "Analysis module"
                 platform = JvmPlatforms.defaultJvmPlatform
             })
-            addModule(buildKtLibraryModule {
-                libraryName = "Stdlib"
-                platform = JvmPlatforms.defaultJvmPlatform
-                addBinaryRoot(stdlibPath)
-            })
+            // Remove stdlib module for now to avoid null pointer issues
+            // The Analysis API should work without explicit stdlib configuration
             println("done adding module")
         }
         println("done building module provider")
     }
     println("Done creating session")
 
-    return session
+    val project = session.project
+
+    return KtPsiFactory(project)
 }
 
 @OptIn(K1Deprecation::class)
-fun createFile(fileName: String, content: String): KtFile {
+fun createFile(fileName: String, content: String, factory: KtPsiFactory): KtFile {
 //    val disposable = Disposer.newDisposable()
 //    val project: Project = KotlinCoreEnvironment.ProjectEnvironment(
 //        disposable,
@@ -65,10 +62,8 @@ fun createFile(fileName: String, content: String): KtFile {
 //        configuration = CompilerConfiguration(),
 //    ).project
 
-    val project = createSession().project
 //    val project = setupMyEnv(setupMyCfg()).project
 
-    val factory = KtPsiFactory(project/*, markGenerated = true*/)
     val psiFile = factory.createFile(fileName, content)
     return psiFile
 }

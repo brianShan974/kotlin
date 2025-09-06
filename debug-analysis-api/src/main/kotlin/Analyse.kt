@@ -12,19 +12,19 @@ import org.jetbrains.kotlin.psi.KtFile
 fun simpleAnalyze(file: KtFile): List<String> {
     println("entering simple analyze")
 
-//    @OptIn(KaExperimentalApi::class)
-//    psiFile.contextModule = KaModuleProvider.getModule(session.project, psiFile, useSiteModule = null)
-//    println("Done creating context module")
-
     val diagnostics = analyze(file) {
         println("inside analyze")
-        val diagnostics = file.collectDiagnostics(KaDiagnosticCheckerFilter.EXTENDED_AND_COMMON_CHECKERS)
-        println("done analyzing")
-        diagnostics.map {
-            it.defaultMessage
+        try {
+            val diagnostics = file.collectDiagnostics(KaDiagnosticCheckerFilter.EXTENDED_AND_COMMON_CHECKERS)
+            println("done analyzing with common checkers")
+            diagnostics.map {
+                it.defaultMessage
+            }
+        } catch (e: Throwable) {
+            println("Error with common checkers: ${e.message}")
+            listOf("Analysis error: ${e.javaClass.simpleName} - ${e.message}")
         }
     }
-
     println("finished simple analyze")
     return diagnostics
 }
