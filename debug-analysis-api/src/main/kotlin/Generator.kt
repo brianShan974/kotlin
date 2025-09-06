@@ -14,7 +14,7 @@ class Generator(val factory: KtPsiFactory) {
     /**
      * Path to the Rust executable that generates Kotlin code
      */
-    private val rustProgramPath: String = "debug-analysis-api/src/main/resources/libs/randprog_rs"
+    private val rustProgramPath: String = this::class.java.classLoader.getResource("libs/randprog_rs")!!.path
     val processBuilder = ProcessBuilder(rustProgramPath)
 
     init {
