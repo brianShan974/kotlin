@@ -31,22 +31,22 @@ const val KOTLIN_STDLIB_JAR: String = "kotlin-stdlib-$KOTLIN_STDLIB_VERSION.jar"
 
 fun createFactory(): KtPsiFactory {
     val session = buildStandaloneAnalysisAPISession {
-        println("creating session")
+        ColorPrint.blue("creating session")
         buildKtModuleProvider {
-            println("building module provider")
+            ColorPrint.green("building module provider")
             platform = JvmPlatforms.defaultJvmPlatform
             addModule(buildKtSourceModule {
-                println("adding module")
+                ColorPrint.yellow("adding module")
                 moduleName = "Analysis module"
                 platform = JvmPlatforms.defaultJvmPlatform
             })
             // Remove stdlib module for now to avoid null pointer issues
             // The Analysis API should work without explicit stdlib configuration
-            println("done adding module")
+            ColorPrint.purple("done adding module")
         }
-        println("done building module provider")
+        ColorPrint.cyan("done building module provider")
     }
-    println("Done creating session")
+    ColorPrint.brightGreen("Done creating session")
 
     val project = session.project
 

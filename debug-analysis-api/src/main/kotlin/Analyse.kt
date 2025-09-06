@@ -10,21 +10,31 @@ import org.jetbrains.kotlin.analysis.api.components.KaDiagnosticCheckerFilter
 import org.jetbrains.kotlin.psi.KtFile
 
 fun simpleAnalyze(file: KtFile): List<String> {
-    println("entering simple analyze")
+    ColorPrint.teal("entering simple analyze")
 
-    val diagnostics = analyze(file) {
-        println("inside analyze")
-        try {
-            val diagnostics = file.collectDiagnostics(KaDiagnosticCheckerFilter.EXTENDED_AND_COMMON_CHECKERS)
-            println("done analyzing with common checkers")
-            diagnostics.map {
-                it.defaultMessage
+    return try {
+        val diagnostics = analyze(file) {
+            ColorPrint.magenta("inside analyze")
+            try {
+                // Try with only common checkers first (most stable)
+                val diagnostics = file.collectDiagnostics(KaDiagnosticCheckerFilter.ONLY_COMMON_CHECKERS)
+                ColorPrint.lime("done analyzing with common checkers")
+                diagnostics.map {
+                    it.defaultMessage
+                }
+            } catch (e: Throwable) {
+                ColorPrint.brightRed("Error with common checkers: ${e.message}")
+                ColorPrint.orange("Error type: ${e.javaClass.simpleName}")
+                // Return the error as a diagnostic
+                listOf("Analysis error: ${e.javaClass.simpleName} - ${e.message}")
             }
-        } catch (e: Throwable) {
-            println("Error with common checkers: ${e.message}")
-            listOf("Analysis error: ${e.javaClass.simpleName} - ${e.message}")
         }
+        ColorPrint.silver("finished simple analyze")
+        diagnostics
+    } catch (e: Throwable) {
+        ColorPrint.coral("Error during analysis: ${e.message}")
+        ColorPrint.pink("Error type: ${e.javaClass.simpleName}")
+        // Return error information instead of crashing
+        listOf("Analysis error: ${e.javaClass.simpleName} - ${e.message}")
     }
-    println("finished simple analyze")
-    return diagnostics
 }
