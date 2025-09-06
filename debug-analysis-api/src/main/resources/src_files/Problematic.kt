@@ -1,4 +1,4 @@
-ienum class ExecutionState {
+enum class ExecutionState {
     Running,
     Finished,
 }

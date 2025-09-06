@@ -20,9 +20,5 @@ class LeakingExample {
 }
 
 fun register(obj: LeakingExample): String {
-    return Registered: $obj"
-}
-
-fun main() {
-    val string = LeakingExample()
+    return "Registered: $obj"
 }
