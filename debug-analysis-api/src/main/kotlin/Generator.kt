@@ -2,8 +2,10 @@ package org.jetbrains.kotlin
 
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPsiFactory
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import java.io.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.util.concurrent.TimeUnit
 
 /**
@@ -12,9 +14,36 @@ import java.util.concurrent.TimeUnit
 class Generator(val factory: KtPsiFactory) {
 
     /**
-     * Path to the Rust executable that generates Kotlin code
+     * Path to the extracted Rust executable
      */
-    private val rustProgramPath: String = this::class.java.classLoader.getResource("libs/randprog_rs")!!.path
+    private val rustProgramPath: String
+
+    init {
+        // Extract the Rust executable from JAR resources to a temporary file
+        rustProgramPath = extractRustExecutable()
+    }
+
+    /**
+     * Extracts the randprog_rs executable from JAR resources to a temporary file
+     * @return Path to the extracted executable
+     */
+    private fun extractRustExecutable(): String {
+        val resourceStream = this::class.java.classLoader.getResourceAsStream("libs/rprs")
+            ?: throw RuntimeException("Cannot find randprog_rs in JAR resources")
+        
+        // Create a temporary file
+        val tempFile = File.createTempFile("randprog_rs", "")
+        tempFile.deleteOnExit()
+        
+        // Copy the resource to the temporary file
+        Files.copy(resourceStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        
+        // Make the file executable
+        tempFile.setExecutable(true)
+        
+        return tempFile.absolutePath
+    }
+
     val processBuilder = ProcessBuilder(rustProgramPath)
 
     init {

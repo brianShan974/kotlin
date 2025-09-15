@@ -1,7 +1,8 @@
 package org.jetbrains.kotlin
 
 object ColorPrint {
-    // ANSI颜色代码
+    var enableColors: Boolean = true
+    
     private const val RESET = "\u001B[0m"
     private const val RED = "\u001B[31m"
     private const val GREEN = "\u001B[32m"
@@ -17,7 +18,6 @@ object ColorPrint {
     private const val BRIGHT_CYAN = "\u001B[96m"
     private const val BRIGHT_WHITE = "\u001B[97m"
     
-    // 额外的颜色
     private const val ORANGE = "\u001B[38;5;208m"
     private const val PINK = "\u001B[38;5;205m"
     private const val LIME = "\u001B[38;5;154m"
@@ -26,29 +26,32 @@ object ColorPrint {
     private const val GOLD = "\u001B[38;5;220m"
     private const val SILVER = "\u001B[38;5;7m"
     private const val CORAL = "\u001B[38;5;203m"
+    
+    private fun formatMessage(message: String, colorCode: String): String {
+        return if (enableColors) "$colorCode$message$RESET" else message
+    }
 
-    fun red(message: String) = println("$RED$message$RESET")
-    fun green(message: String) = println("$GREEN$message$RESET")
-    fun yellow(message: String) = println("$YELLOW$message$RESET")
-    fun blue(message: String) = println("$BLUE$message$RESET")
-    fun purple(message: String) = println("$PURPLE$message$RESET")
-    fun cyan(message: String) = println("$CYAN$message$RESET")
+    fun red(message: String) = println(formatMessage(message, RED))
+    fun green(message: String) = println(formatMessage(message, GREEN))
+    fun yellow(message: String) = println(formatMessage(message, YELLOW))
+    fun blue(message: String) = println(formatMessage(message, BLUE))
+    fun purple(message: String) = println(formatMessage(message, PURPLE))
+    fun cyan(message: String) = println(formatMessage(message, CYAN))
     
-    fun brightRed(message: String) = println("$BRIGHT_RED$message$RESET")
-    fun brightGreen(message: String) = println("$BRIGHT_GREEN$message$RESET")
-    fun brightYellow(message: String) = println("$BRIGHT_YELLOW$message$RESET")
-    fun brightBlue(message: String) = println("$BRIGHT_BLUE$message$RESET")
-    fun brightPurple(message: String) = println("$BRIGHT_PURPLE$message$RESET")
-    fun brightCyan(message: String) = println("$BRIGHT_CYAN$message$RESET")
-    fun brightWhite(message: String) = println("$BRIGHT_WHITE$message$RESET")
+    fun brightRed(message: String) = println(formatMessage(message, BRIGHT_RED))
+    fun brightGreen(message: String) = println(formatMessage(message, BRIGHT_GREEN))
+    fun brightYellow(message: String) = println(formatMessage(message, BRIGHT_YELLOW))
+    fun brightBlue(message: String) = println(formatMessage(message, BRIGHT_BLUE))
+    fun brightPurple(message: String) = println(formatMessage(message, BRIGHT_PURPLE))
+    fun brightCyan(message: String) = println(formatMessage(message, BRIGHT_CYAN))
+    fun brightWhite(message: String) = println(formatMessage(message, BRIGHT_WHITE))
     
-    // 额外的颜色方法
-    fun orange(message: String) = println("$ORANGE$message$RESET")
-    fun pink(message: String) = println("$PINK$message$RESET")
-    fun lime(message: String) = println("$LIME$message$RESET")
-    fun teal(message: String) = println("$TEAL$message$RESET")
-    fun magenta(message: String) = println("$MAGENTA$message$RESET")
-    fun gold(message: String) = println("$GOLD$message$RESET")
-    fun silver(message: String) = println("$SILVER$message$RESET")
-    fun coral(message: String) = println("$CORAL$message$RESET")
+    fun orange(message: String) = println(formatMessage(message, ORANGE))
+    fun pink(message: String) = println(formatMessage(message, PINK))
+    fun lime(message: String) = println(formatMessage(message, LIME))
+    fun teal(message: String) = println(formatMessage(message, TEAL))
+    fun magenta(message: String) = println(formatMessage(message, MAGENTA))
+    fun gold(message: String) = println(formatMessage(message, GOLD))
+    fun silver(message: String) = println(formatMessage(message, SILVER))
+    fun coral(message: String) = println(formatMessage(message, CORAL))
 }

@@ -29,24 +29,34 @@ import kotlin.io.path.Path
 const val KOTLIN_STDLIB_VERSION: String = "2.2.0"
 const val KOTLIN_STDLIB_JAR: String = "kotlin-stdlib-$KOTLIN_STDLIB_VERSION.jar"
 
-fun createFactory(): KtPsiFactory {
+fun createFactory(scriptMode: Boolean = false): KtPsiFactory {
     val session = buildStandaloneAnalysisAPISession {
-        ColorPrint.blue("creating session")
+        if (!scriptMode) {
+            ColorPrint.blue("creating session")
+        }
         buildKtModuleProvider {
-            ColorPrint.green("building module provider")
+            if (!scriptMode) {
+                ColorPrint.green("building module provider")
+            }
             platform = JvmPlatforms.defaultJvmPlatform
             addModule(buildKtSourceModule {
-                ColorPrint.yellow("adding module")
+                if (!scriptMode) {
+                    ColorPrint.yellow("adding module")
+                }
                 moduleName = "Analysis module"
                 platform = JvmPlatforms.defaultJvmPlatform
             })
-            // Remove stdlib module for now to avoid null pointer issues
-            // The Analysis API should work without explicit stdlib configuration
-            ColorPrint.purple("done adding module")
+            if (!scriptMode) {
+                ColorPrint.purple("done adding module")
+            }
         }
-        ColorPrint.cyan("done building module provider")
+        if (!scriptMode) {
+            ColorPrint.cyan("done building module provider")
+        }
     }
-    ColorPrint.brightGreen("Done creating session")
+    if (!scriptMode) {
+        ColorPrint.brightGreen("Done creating session")
+    }
 
     val project = session.project
 
